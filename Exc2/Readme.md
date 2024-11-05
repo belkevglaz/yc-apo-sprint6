@@ -18,5 +18,6 @@ screens
 ├── part1-locust.png                        # Скриншот  locust для первой части задания
 ├── part2-k8s-dashboard.png                 # Скриншот дашборда для второй части задания
 ├── part2-k8s-hpa-logs.png                  # Скриншот логов HPA для второй части задания
-└── part2-locust.png                        # Скриншот  locust для второй части задания
+└── part2-locust.png                        # Скриншот locust для второй части задания
+└── part2-prometheus-metrics.png            # Скриншот метрик из prometheus для второй части задания
 ```
