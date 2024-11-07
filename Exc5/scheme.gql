@@ -1,0 +1,60 @@
+type Client {
+    id: ID!
+    name: String
+    age: Int
+}
+
+type Document {
+    id: ID!
+    client: Client!
+    type: String
+    number: String
+    issueDate: String
+    expiryDate: String
+}
+
+type Relative {
+    id: ID!
+    client: Client!
+    relationType: String
+    name: String
+    age: Int
+}
+
+type Query {
+    # Получение клиента по идентификатору
+    client(id: ID!): Client
+
+    # Получить всех клиентов
+    clients: [Client]
+
+    # Получить список документов по идентификатору клиента
+    documents(id: ID!): [Document]
+
+    # Получить всех родственников клиента.
+    relatives(id: ID!): [Relative]
+}
+
+
+query {
+    # Запрос на получение документов клиента 12345
+    documents(id: "12345") {
+        client {
+            name
+        }
+        type
+        number
+        issueDate
+        expiryDate
+    }
+
+    # Запрос на получение родственников клиента 12345
+    relatives(id: "12345") {
+        client {
+            name
+        }
+        relationType
+        name
+        age
+    }
+}
