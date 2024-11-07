@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-deployment
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-deployment
+    spec:
+      containers:
+        - name: rl-nginx
+          image: "nginx:1.25-alpine"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-rated
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: nginx-deployment
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events {
+      worker_connections  1024;
+    }
+    
+    http {
+    # Настройка upstream для балансировки нагрузки
+      upstream backend_servers {
+         server scalable-service.default.svc.cluster.local;
+      }
+    
+      limit_req_zone $remote_addr zone=apilimiter:10m rate=1r/s;
+      server {
+         listen 8080;
+         location / {
+            limit_req zone=apilimiter burst=1 nodelay;
+            limit_req_status 429;
+            
+            proxy_pass http://backend_servers;
+         }
+    
+      }
+    }
